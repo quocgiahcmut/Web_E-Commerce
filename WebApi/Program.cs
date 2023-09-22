@@ -17,6 +17,17 @@ builder.Services
         options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
     });
 
+builder.Services
+    .AddCors(options =>
+    {
+        options.AddPolicy("AllowReactClient", builder =>
+        {
+            builder.AllowAnyHeader();
+            builder.AllowAnyMethod();
+            builder.WithOrigins("http://localhost:3000");
+        });
+    });
+
 builder.Services.AddScoped<IUnitOfWork,  UnitOfWork>();
 
 var app = builder.Build();
@@ -28,7 +39,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+
+//app.UseHttpsRedirection();
+
+app.UseCors("AllowReactClient");
 
 app.UseAuthorization();
 

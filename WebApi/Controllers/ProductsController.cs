@@ -6,11 +6,11 @@ using WebApi.Repositories.UOW;
 namespace WebApi.Controllers;
 [Route("api/[controller]")]
 [ApiController]
-public class ProductController : ControllerBase
+public class ProductsController : ControllerBase
 {
     private readonly IUnitOfWork _uow;
 
-    public ProductController(IUnitOfWork uow)
+    public ProductsController(IUnitOfWork uow)
     {
         _uow = uow;
     }
