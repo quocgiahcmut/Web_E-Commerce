@@ -1,23 +1,35 @@
-import { useState, useEffect } from 'react'
-import Typography from '@mui/material/Typography'
+import { useState } from 'react'
+import { createTheme, ThemeProvider } from '@mui/material'
+import { Outlet } from 'react-router-dom'
+import CssBaseline from '@mui/material/CssBaseline'
+import Container from '@mui/material/Container'
 
-import Catalog from '~/features/catalog/Catalog'
-import { Product } from '~/app/models/product'
+import Header from '~/app/layout/Header'
 
 function App() {
-  const [products, setProducts] = useState<Product[]>([])
+  const [darkMode, setDarkMode] = useState(false)
+  const palleteType = darkMode ? 'dark' : 'light'
+  const theme = createTheme({
+    palette: {
+      mode: palleteType,
+      background: {
+        default: (palleteType === 'light') ? '#eaeaea' : '#121212'
+      }
+    }
+  })
 
-  useEffect(() => {
-    fetch('http://localhost:5000/api/products')
-    .then(response => response.json())
-    .then(data => setProducts(data));
-  }, [])
-  
+  function handleThemeChange() {
+    setDarkMode(!darkMode)
+  }
+
   return (
-    <div>
-      <Typography variant='h1'>E-Commerce Web</Typography>
-      <Catalog products={products} />
-    </div>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Header darkMode={darkMode} handleThemeChange={handleThemeChange} />
+      <Container>
+        <Outlet />
+      </Container>
+    </ThemeProvider>
   )
 }
 
