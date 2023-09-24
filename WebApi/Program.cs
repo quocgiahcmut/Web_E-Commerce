@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using WebApi.Data;
+using WebApi.Middleware;
 using WebApi.Repositories.UOW;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,6 +32,8 @@ builder.Services
 builder.Services.AddScoped<IUnitOfWork,  UnitOfWork>();
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

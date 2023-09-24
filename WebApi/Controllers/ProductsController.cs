@@ -4,9 +4,8 @@ using WebApi.Entities;
 using WebApi.Repositories.UOW;
 
 namespace WebApi.Controllers;
-[Route("api/[controller]")]
-[ApiController]
-public class ProductsController : ControllerBase
+
+public class ProductsController : BaseApiController
 {
     private readonly IUnitOfWork _uow;
 
