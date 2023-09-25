@@ -7,8 +7,9 @@ import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
-import { NavLink } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 import ShoppingCart from '@mui/icons-material/ShoppingCart'
+import { useAppSelector } from '../store/configuraStore'
 
 const midLinks = [
   { title: 'catalog', path: '/catalog' },
@@ -39,6 +40,9 @@ interface Props {
 }
 
 function Header({ darkMode, handleThemeChange }: Props) {
+  const { basket } = useAppSelector(state => state.basket)
+  const itemCount = basket?.items.reduce((sum, item) => sum + item.quantity, 0)
+  
   return (
     <AppBar position='static' sx={{ mb: 4 }}>
       <Toolbar sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
@@ -66,8 +70,8 @@ function Header({ darkMode, handleThemeChange }: Props) {
           ))}
         </List>
         <Box display='flex' alignItems='center'>
-          <IconButton size='large' edge='start' color='inherit' sx={{mr: 2}} >
-            <Badge badgeContent='4' color='secondary'>
+          <IconButton component={Link} to="/basket" size='large' edge='start' color='inherit' sx={{mr: 2}} >
+            <Badge badgeContent={itemCount} color='secondary'>
               <ShoppingCart />
             </Badge>
           </IconButton>

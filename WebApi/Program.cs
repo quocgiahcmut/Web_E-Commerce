@@ -25,6 +25,7 @@ builder.Services
         {
             builder.AllowAnyHeader();
             builder.AllowAnyMethod();
+            builder.AllowCredentials();
             builder.WithOrigins("http://localhost:3000");
         });
     });

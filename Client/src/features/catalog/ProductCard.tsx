@@ -6,14 +6,22 @@ import CardHeader from '@mui/material/CardHeader'
 import Typography from '@mui/material/Typography'
 import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
+import LoadingButton from '@mui/lab/LoadingButton'
 import { Product } from '~/app/models/product'
 import { Link } from 'react-router-dom'
+
+import { currencyFormat } from '~/app/util/helper'
+import { useAppDispatch, useAppSelector } from '~/app/store/configuraStore'
+import { addBasketItemAsync } from '~/features/basket/basketSlice'
 
 interface Props {
   product: Product
 }
 
 function ProductCard({ product }: Props) {
+  const { status } = useAppSelector(state => state.basket)
+  const dispatch = useAppDispatch()
+
   return (
     <Card>
       <CardHeader 
@@ -34,14 +42,20 @@ function ProductCard({ product }: Props) {
       />
       <CardContent>
         <Typography gutterBottom variant="h5" color="secondary">
-          ${(product.price / 100).toFixed(2)}
+          {currencyFormat(product.price)}
         </Typography>
         <Typography variant="body2" color="text.secondary" >
           {product.brand} / {product.type}
         </Typography>
       </CardContent>
       <CardActions>
-        <Button size="small">Add to Cart</Button>
+        <LoadingButton
+          loading={status.includes('pendingAddItem' + product.id)}
+          onClick={() => dispatch(addBasketItemAsync({productId: product.id, quantity: 1}))}
+          size="small"
+        >
+          Add to Cart
+        </LoadingButton>
         <Button component={Link} to={`/catalog/${product.id}`} size="small">View</Button>
       </CardActions>
     </Card>

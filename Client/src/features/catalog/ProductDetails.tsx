@@ -1,25 +1,54 @@
-import { Divider, Grid, Table, TableBody, TableCell, TableContainer, TableRow } from '@mui/material'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
 import Typography from '@mui/material/Typography'
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { Product } from '~/app/models/product'
-import agent from '~/app/api/agent'
 import NotFound from '~/app/errors/NotFound'
 import Loading from '~/app/layout/Loading'
+import LoadingButton from '@mui/lab/LoadingButton'
+import Grid from '@mui/material/Grid'
+import Divider from '@mui/material/Divider'
+import TableContainer from '@mui/material/TableContainer'
+import Table from '@mui/material/Table'
+import TableBody from '@mui/material/TableBody'
+import TableRow from '@mui/material/TableRow'
+import TableCell from '@mui/material/TableCell'
+import TextField from '@mui/material/TextField'
+import { useAppDispatch, useAppSelector } from '~/app/store/configuraStore'
+import { addBasketItemAsync, removeBasketItemAsync } from '~/features/basket/basketSlice'
+import { fetchProductAsync, productSelectors } from './catalogSlice'
 
 function ProductDetails() {
+  const { basket, status } = useAppSelector(state => state.basket)
+  const product = useAppSelector(state => productSelectors.selectById(state, id!))
+  const { status: productStatus } = useAppSelector(state => state.catalog)
+  const dispatch = useAppDispatch()
   const { id } = useParams<{ id: string }>()
-  const [product, setProduct] = useState<Product | null>()
-  const [loading, setLoading] = useState(true)
+  const [quantity, setQuantity] = useState(0)
+  const item = basket?.items.find(i => i.productId === product?.id)
 
   useEffect(() => {
-    id && agent.Catalog.details(parseInt(id))
-      .then(response => setProduct(response.data))
-      .catch(error => console.log(error))
-      .finally(() => setLoading(false))
-  }, [id])
+    if (item) setQuantity(item.quantity)
+    if (!product && id) dispatch(fetchProductAsync(parseInt(id)))
+  }, [id, item, product, dispatch])
+
+  function handleInputChange(event: any) {
+    if (event.target.value >= 0)
+      setQuantity(parseInt(event.target.value))
+  }
+
   
-  if (loading) return <Loading message="Loading product..." />
+  function handleUpdateCart() {
+    if (!item || quantity > item.quantity) {
+      const updatedQuantity = item ? quantity - item.quantity : quantity
+      dispatch(addBasketItemAsync({ productId: product?.id!, quantity: updatedQuantity }))
+    } else {
+      const updatedQuantity = item.quantity - quantity
+      dispatch(removeBasketItemAsync({ productId: product?.id!, quantity: updatedQuantity }))
+    }
+  }
+  
+  if (productStatus.includes('pending')) return <Loading message="Loading product..." />
 
   if (!product) return <NotFound />
 
@@ -58,6 +87,32 @@ function ProductDetails() {
             </TableBody>
           </Table>
         </TableContainer>
+        <Grid container spacing={2}>
+          <Grid item xs={6}>
+            <TextField
+              onChange={handleInputChange}
+              variant={'outlined'}
+              type={'number'}
+              label={'Quantity in Cart'}
+              fullWidth
+              value={quantity}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <LoadingButton
+              disabled={(item?.quantity === quantity) || (!item && quantity === 0)}
+              loading={status.includes('pending')}
+              onClick={handleUpdateCart}
+              sx={{ height: '55px' }}
+              color={'primary'}
+              size={'large'}
+              variant={'contained'}
+              fullWidth
+            >
+              {item ? 'Update Quantity' : 'Add to Cart'}
+            </LoadingButton>
+          </Grid>
+        </Grid>
       </Grid>
     </Grid>
   )
