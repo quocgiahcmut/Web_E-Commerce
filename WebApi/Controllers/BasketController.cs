@@ -59,7 +59,7 @@ public class BasketController : BaseApiController
         return BadRequest(new ProblemDetails { Title = "Problem removing item from the basket" });
     }
 
-    public Basket CreateBasket()
+    private Basket CreateBasket()
     {
         var buyerId = Guid.NewGuid().ToString();
         var cookieOptions = new CookieOptions { IsEssential = true, Expires = DateTime.Now.AddDays(30) };
@@ -69,7 +69,7 @@ public class BasketController : BaseApiController
         return basket;
     }
 
-    public async Task<Basket> RetrieveBasket()
+    private async Task<Basket> RetrieveBasket()
     {
         return await _context.Baskets
             .Include(b => b.Items)
